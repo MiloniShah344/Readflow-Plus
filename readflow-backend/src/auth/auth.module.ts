@@ -5,6 +5,9 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from '../users/users.module';
+import { StringValue } from 'ms';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Module({
   imports: [
@@ -12,7 +15,9 @@ import { UsersModule } from '../users/users.module';
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: Number(process.env.JWT_EXPIRES_IN || 7) },
+        signOptions: {
+          expiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as StringValue,
+        },
       }),
     }),
     UsersModule,

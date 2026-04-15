@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Injectable,
@@ -81,7 +83,7 @@ export class AuthService {
   }
 
   private sanitizeUser(user: User) {
-    const { password, ...result } = user;
-    return result;
+    const { password, books, readingLogs, ...result } = user;
+    return JSON.parse(JSON.stringify(result));
   }
 }
