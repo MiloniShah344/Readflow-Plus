@@ -22,7 +22,7 @@ export default function LoginForm() {
     try {
       const res = await authService.login(email, password);
       dispatch(setCredentials({ user: res.user, token: res.token }));
-      router.push('/');
+      router.replace('/dashboard');
     } catch (err: any) { setError(err.message || 'Login failed'); }
     finally { setLoading(false); }
   };

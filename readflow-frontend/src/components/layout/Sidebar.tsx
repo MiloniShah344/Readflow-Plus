@@ -10,15 +10,15 @@ import { logout } from "@/store/slices/authSlice";
 import { getLevelInfo } from "@/utils/formatters";
 
 const NAV = [
-  { label: "Dashboard", href: "/", icon: <DashboardIcon fontSize="small" /> },
+  { label: "Dashboard", href: "/dashboard", icon: <DashboardIcon fontSize="small" /> },
   {
     label: "My Books",
-    href: "/books",
+    href: "/dashboard/books",
     icon: <LibraryBooksIcon fontSize="small" />,
   },
   {
     label: "Reading Logs",
-    href: "/logs",
+    href: "/dashboard/logs",
     icon: <HistoryIcon fontSize="small" />,
   },
 ];
@@ -85,8 +85,8 @@ export default function Sidebar() {
       >
         {NAV.map((item) => {
           const active =
-            item.href === "/"
-              ? pathname === "/"
+            item.href === "/dashboard"
+              ? pathname === "/dashboard"
               : pathname.startsWith(item.href);
           return (
             <Box
