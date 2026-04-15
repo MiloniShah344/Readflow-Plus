@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-import { Providers } from "./providers";
-import "./globals.css";
-
-import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
+import type { Metadata } from 'next';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
+import { Providers } from './providers';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "ReadFlow+ — Gamified Reading Tracker",
-  description: "Track your reading, earn XP, unlock achievements.",
+  title: 'ReadFlow+ — Gamified Reading Tracker',
+  description: 'Track your reading, earn XP, unlock achievements.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>

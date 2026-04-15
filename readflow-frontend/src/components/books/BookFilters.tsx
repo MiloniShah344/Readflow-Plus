@@ -9,49 +9,36 @@ interface BookFiltersProps {
   onSearchChange: (search: string) => void;
 }
 
-const STATUS_OPTIONS = [
-  { value: '', label: 'All Books' },
-  { value: 'to_read', label: '📌 To Read' },
-  { value: 'in_progress', label: '📖 In Progress' },
-  { value: 'completed', label: '✅ Completed' },
-  { value: 'dropped', label: '😅 Dropped' },
-];
+const fieldSx = {
+  '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: 'rgba(124,58,237,0.05)' },
+  '& .MuiInputBase-input': { color: 'text.primary' },
+  '& .MuiInputLabel-root': { color: 'text.secondary' },
+};
 
-export default function BookFilters({
-  status,
-  onStatusChange,
-  search,
-  onSearchChange,
-}: BookFiltersProps) {
+export default function BookFilters({ status, onStatusChange, search, onSearchChange }: BookFiltersProps) {
   return (
-    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
       <TextField
         placeholder="Search books..."
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
-        size="small"
-        sx={{ minWidth: 220 }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon fontSize="small" />
-            </InputAdornment>
-          ),
+        size="small" sx={{ minWidth: 200, ...fieldSx }}
+        slotProps={{
+          input: {startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 18, color: '#9990b8' }} /></InputAdornment>,}
         }}
       />
       <TextField
-        select
-        value={status}
+        select value={status} label="Filter"
         onChange={(e) => onStatusChange(e.target.value)}
-        size="small"
-        sx={{ minWidth: 160 }}
-        label="Filter by status"
+        size="small" sx={{ minWidth: 150, ...fieldSx }}
       >
-        {STATUS_OPTIONS.map((opt) => (
-          <MenuItem key={opt.value} value={opt.value}>
-            {opt.label}
-          </MenuItem>
-        ))}
+        {[
+          { value: '', label: 'All Books' },
+          { value: 'to_read', label: '📌 To Read' },
+          { value: 'in_progress', label: '📖 In Progress' },
+          { value: 'completed', label: '✅ Completed' },
+          { value: 'dropped', label: '😅 Dropped' },
+        ].map((o) => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
       </TextField>
     </Box>
   );

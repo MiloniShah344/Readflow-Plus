@@ -1,20 +1,9 @@
 'use client';
-import {
-  Card,
-  CardContent,
-  CardActions,
-  Typography,
-  Box,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-  Rating,
-} from '@mui/material';
+import { Box, Typography, IconButton, Menu, MenuItem } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { useState } from 'react';
 import { Book } from '@/types/book.types';
 import BookStatusBadge from './BookStatusBadge';
@@ -26,164 +15,115 @@ import { useDeleteBook } from '@/hooks/useBooks';
 import { useRouter } from 'next/navigation';
 import { COVER_COLORS } from '@/constants/levels';
 
-interface BookCardProps {
-  book: Book;
-  onEdit?: (book: Book) => void;
-}
-
-export default function BookCard({ book, onEdit }: BookCardProps) {
+export default function BookCard({ book, onEdit }: { book: Book; onEdit?: (b: Book) => void }) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { mutate: deleteBook } = useDeleteBook();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const progress = getProgressPercent(book.currentPage, book.totalPages);
-  const coverColor =
-    book.coverColor ||
-    COVER_COLORS[book.title.charCodeAt(0) % COVER_COLORS.length];
-
-  const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
-    setAnchorEl(e.currentTarget);
-  };
-
-  const handleMenuClose = () => setAnchorEl(null);
-
-  const handleDelete = () => {
-    if (window.confirm(`Delete "${book.title}"? This cannot be undone.`)) {
-      deleteBook(book.id);
-    }
-    handleMenuClose();
-  };
-
-  const handleEdit = () => {
-    onEdit?.(book);
-    handleMenuClose();
-  };
+  const coverColor = book.coverColor || COVER_COLORS[book.title.charCodeAt(0) % COVER_COLORS.length];
 
   return (
-    <Card
+    <Box
+      onClick={() => router.push(`/books/${book.id}`)}
       sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
         borderRadius: 3,
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'transform 0.2s, box-shadow 0.2s',
+        border: '1px solid rgba(124,58,237,0.15)',
+        bgcolor: 'rgba(124,58,237,0.03)',
+        overflow: 'hidden',
         cursor: 'pointer',
+        transition: 'all 0.25s ease',
+        display: 'flex', flexDirection: 'column',
         '&:hover': {
           transform: 'translateY(-4px)',
-          boxShadow: 6,
+          boxShadow: '0 16px 48px rgba(124,58,237,0.2)',
+          borderColor: 'rgba(124,58,237,0.4)',
         },
       }}
-      onClick={() => router.push(`/books/${book.id}`)}
-      elevation={0}
     >
       {/* Cover */}
-      <Box
-        sx={{
-          height: 120,
-          background: `linear-gradient(135deg, ${coverColor}cc, ${coverColor}66)`,
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <MenuBookIcon sx={{ fontSize: 48, color: 'white', opacity: 0.6 }} />
+      <Box sx={{
+        height: 110,
+        background: `linear-gradient(135deg, ${coverColor}99, ${coverColor}44)`,
+        position: 'relative',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Typography sx={{ fontSize: 48, filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }}>📖</Typography>
         <Box sx={{ position: 'absolute', top: 8, left: 8 }}>
           <BookStatusBadge status={book.status} />
         </Box>
         <IconButton
           size="small"
-          sx={{ position: 'absolute', top: 4, right: 4, color: 'white' }}
-          onClick={handleMenuOpen}
+          onClick={(e) => { e.stopPropagation(); setAnchorEl(e.currentTarget); }}
+          sx={{ position: 'absolute', top: 4, right: 4, color: 'rgba(255,255,255,0.8)', '&:hover': { bgcolor: 'rgba(0,0,0,0.3)' } }}
         >
-          <MoreVertIcon fontSize="small" />
+          <MoreVertIcon sx={{ fontSize: 18 }} />
         </IconButton>
       </Box>
 
-      <CardContent sx={{ flexGrow: 1, pb: 1 }}>
-        <Typography
-          variant="subtitle1"
-          fontWeight={600}
-          noWrap
-          title={book.title}
-        >
+      {/* Content */}
+      <Box sx={{ p: 2, flex: 1 }}>
+        <Typography sx={{ fontWeight: 700, fontSize: 15, color: 'text.primary', mb: 0.25, lineHeight: 1.3 }} noWrap>
           {book.title}
         </Typography>
-        <Typography variant="body2" color="text.secondary" noWrap mb={1}>
+        <Typography sx={{ fontSize: 12, color: 'text.secondary', mb: 1.5 }} noWrap>
           {book.author}
         </Typography>
 
         {book.genre && (
-          <Typography variant="caption" color="text.disabled" display="block" mb={1}>
-            {book.genre}
-          </Typography>
-        )}
-
-        {book.rating && (
-          <Rating value={book.rating} readOnly size="small" sx={{ mb: 1 }} />
+          <Box sx={{
+            display: 'inline-block', px: 1, py: 0.25, mb: 1,
+            borderRadius: 10, bgcolor: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)',
+          }}>
+            <Typography sx={{ fontSize: 10, color: '#a78bfa', fontWeight: 600 }}>{book.genre}</Typography>
+          </Box>
         )}
 
         {book.status === 'in_progress' && book.totalPages && (
-          <Box sx={{ mt: 1 }}>
-            <ProgressBar
-              value={progress}
-              label={`${book.currentPage} / ${book.totalPages} pages`}
-              height={6}
-            />
+          <Box sx={{ mt: 'auto' }}>
+            <ProgressBar value={progress} label={`${book.currentPage} / ${book.totalPages} pages`} height={5} showPercent />
           </Box>
         )}
 
         {book.status === 'completed' && (
-          <Typography variant="caption" color="success.main" fontWeight={600}>
+          <Typography sx={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>
             ✅ {book.totalPages ? `${book.totalPages} pages` : 'Completed'}
           </Typography>
         )}
-      </CardContent>
+      </Box>
 
-      <CardActions sx={{ pt: 0, px: 2, pb: 2 }}>
-        {book.status === 'in_progress' && (
-          <Button
-            size="small"
-            variant="contained"
-            fullWidth
-            sx={{ borderRadius: 2, fontSize: '0.75rem' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              dispatch(openLogModal(book.id));
+      {/* Action */}
+      {book.status === 'in_progress' && (
+        <Box sx={{ px: 2, pb: 2 }}>
+          <Box
+            onClick={(e) => { e.stopPropagation(); dispatch(openLogModal(book.id)); }}
+            sx={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5,
+              py: 1, borderRadius: 2,
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(124,58,237,0.15))',
+              border: '1px solid rgba(124,58,237,0.3)',
+              color: '#a78bfa', fontWeight: 600, fontSize: 13,
+              transition: 'all 0.15s',
+              '&:hover': { background: 'linear-gradient(135deg, rgba(124,58,237,0.5), rgba(124,58,237,0.25))' },
             }}
           >
-            📖 Log Session
-          </Button>
-        )}
-        {book.status === 'to_read' && (
-          <Button
-            size="small"
-            variant="outlined"
-            fullWidth
-            sx={{ borderRadius: 2, fontSize: '0.75rem' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              router.push(`/books/${book.id}`);
-            }}
-          >
-            View Details
-          </Button>
-        )}
-      </CardActions>
+            <PlayArrowIcon sx={{ fontSize: 16 }} /> Log Session
+          </Box>
+        </Box>
+      )}
 
-      {/* Context Menu */}
-      <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={handleMenuClose}>
-        <MenuItem onClick={handleEdit}>
-          <EditIcon fontSize="small" sx={{ mr: 1 }} /> Edit
+      <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
+        <MenuItem onClick={(e) => { e.stopPropagation(); onEdit?.(book); setAnchorEl(null); }}>
+          <EditIcon sx={{ fontSize: 16, mr: 1 }} /> Edit
         </MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
-          <DeleteIcon fontSize="small" sx={{ mr: 1 }} /> Delete
+        <MenuItem
+          onClick={(e) => { e.stopPropagation(); if (confirm(`Delete "${book.title}"?`)) deleteBook(book.id); setAnchorEl(null); }}
+          sx={{ color: 'error.main' }}
+        >
+          <DeleteIcon sx={{ fontSize: 16, mr: 1 }} /> Delete
         </MenuItem>
       </Menu>
-    </Card>
+    </Box>
   );
 }

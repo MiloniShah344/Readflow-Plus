@@ -1,11 +1,5 @@
 'use client';
-import {
-  Box,
-  Grid,
-  Typography,
-  Fab,
-  Tooltip,
-} from '@mui/material';
+import { Box, Typography, Fab, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from 'react';
 import TopBar from '@/components/layout/TopBar';
@@ -25,82 +19,50 @@ export default function BooksPage() {
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [editingBook, setEditingBook] = useState<Book | null>(null);
-
   const { data: books, isLoading } = useBooks(status ? { status } : undefined);
 
   const filtered = books?.filter((b) =>
-    search
-      ? b.title.toLowerCase().includes(search.toLowerCase()) ||
-        b.author.toLowerCase().includes(search.toLowerCase())
-      : true,
+    search ? b.title.toLowerCase().includes(search.toLowerCase()) || b.author.toLowerCase().includes(search.toLowerCase()) : true
   );
 
   return (
     <Box>
       <TopBar title="My Books" />
       <Box sx={{ px: 4, py: 3 }}>
-        {/* Header */}
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          mb={3}
-          flexWrap="wrap"
-          gap={2}
-        >
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
           <Box>
-            <Typography variant="h5" fontWeight={700}>
-              📚 My Library
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {books?.length || 0} book{books?.length !== 1 ? 's' : ''} total
+            <Typography variant="h5" sx={{ fontWeight: 800, mb: 0.25 }}>📚 My Library</Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              {books?.length || 0} book{books?.length !== 1 ? 's' : ''} in your collection
             </Typography>
           </Box>
-          <BookFilters
-            status={status}
-            onStatusChange={setStatus}
-            search={search}
-            onSearchChange={setSearch}
-          />
+          <BookFilters status={status} onStatusChange={setStatus} search={search} onSearchChange={setSearch} />
         </Box>
 
-        {/* Books Grid */}
-        {isLoading ? (
-          <BooksGridSkeleton />
-        ) : !filtered?.length ? (
-          <EmptyState
-            icon="😢"
-            title={search || status ? 'No books found' : 'Your library is empty'}
-            description={
-              search || status
-                ? 'Try adjusting your filters'
-                : 'Start building your reading list!'
-            }
-            actionLabel={!search && !status ? 'Add your first book' : undefined}
-            onAction={
-              !search && !status ? () => dispatch(openAddBookModal()) : undefined
-            }
-          />
-        ) : (
-          <Grid container spacing={3}>
-            {filtered.map((book) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={book.id}>
-                <BookCard book={book} onEdit={setEditingBook} />
-              </Grid>
-            ))}
-          </Grid>
-        )}
+        {isLoading
+          ? <BooksGridSkeleton />
+          : !filtered?.length
+          ? <EmptyState
+              icon={search || status ? '🔍' : '😢'}
+              title={search || status ? 'No books found' : 'Your library is empty'}
+              description={search || status ? 'Try adjusting your search or filters' : 'Start building your reading collection!'}
+              actionLabel={!search && !status ? 'Add your first book' : undefined}
+              onAction={!search && !status ? () => dispatch(openAddBookModal()) : undefined}
+            />
+          : <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: 3 }}>
+              {filtered.map((book) => <BookCard key={book.id} book={book} onEdit={setEditingBook} />)}
+            </Box>
+        }
 
-        {/* Floating Add Button */}
         <Tooltip title="Add new book" placement="left">
           <Fab
             color="primary"
             onClick={() => dispatch(openAddBookModal())}
             sx={{
-              position: 'fixed',
-              bottom: 32,
-              right: 32,
-              boxShadow: '0 8px 24px rgba(99, 102, 241, 0.4)',
+              position: 'fixed', bottom: 32, right: 32,
+              background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+              boxShadow: '0 8px 24px rgba(124,58,237,0.5)',
+              '&:hover': { boxShadow: '0 12px 32px rgba(124,58,237,0.7)' },
             }}
           >
             <AddIcon />
@@ -108,19 +70,9 @@ export default function BooksPage() {
         </Tooltip>
       </Box>
 
-      {/* Edit Modal */}
-      <Modal
-        open={!!editingBook}
-        onClose={() => setEditingBook(null)}
-        title="Edit Book ✏️"
-        maxWidth="sm"
-      >
+      <Modal open={!!editingBook} onClose={() => setEditingBook(null)} title="✏️ Edit Book" maxWidth="sm">
         {editingBook && (
-          <BookForm
-            book={editingBook}
-            onSuccess={() => setEditingBook(null)}
-            onCancel={() => setEditingBook(null)}
-          />
+          <BookForm book={editingBook} onSuccess={() => setEditingBook(null)} onCancel={() => setEditingBook(null)} />
         )}
       </Modal>
     </Box>

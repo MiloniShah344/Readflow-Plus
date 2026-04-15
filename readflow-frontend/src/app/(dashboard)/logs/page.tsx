@@ -1,21 +1,13 @@
-"use client";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  Chip,
-  Button,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import TopBar from "@/components/layout/TopBar";
-import EmptyState from "@/components/ui/EmptyState";
-import { useLogs } from "@/hooks/useLogs";
-import { useAppDispatch } from "@/store/hooks";
-import { openLogModal } from "@/store/slices/uiSlice";
-import { formatDate, formatMinutes } from "@/utils/formatters";
-import { MOODS } from "@/constants/moods";
+'use client';
+import { Box, Typography, Chip } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import TopBar from '@/components/layout/TopBar';
+import EmptyState from '@/components/ui/EmptyState';
+import { useLogs } from '@/hooks/useLogs';
+import { useAppDispatch } from '@/store/hooks';
+import { openLogModal } from '@/store/slices/uiSlice';
+import { formatDate, formatMinutes } from '@/utils/formatters';
+import { MOODS } from '@/constants/moods';
 
 export default function LogsPage() {
   const dispatch = useAppDispatch();
@@ -25,115 +17,69 @@ export default function LogsPage() {
     <Box>
       <TopBar title="Reading Logs" />
       <Box sx={{ px: 4, py: 3 }}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          mb={3}
-        >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
           <Box>
-            <Typography variant="h5" fontWeight={700}>
-              📝 Reading Sessions
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {logs?.length || 0} session{logs?.length !== 1 ? "s" : ""} logged
+            <Typography variant="h5" sx={{ fontWeight: 800 }}>📝 Reading Sessions</Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              {logs?.length || 0} session{logs?.length !== 1 ? 's' : ''} logged
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
+          <Box
             onClick={() => dispatch(openLogModal(null))}
-            sx={{ borderRadius: 2 }}
+            sx={{
+              display: 'flex', alignItems: 'center', gap: 0.75,
+              px: 2.5, py: 1, borderRadius: 2, cursor: 'pointer', fontWeight: 600, fontSize: 14,
+              background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+              color: '#fff', boxShadow: '0 4px 12px rgba(124,58,237,0.4)',
+              '&:hover': { boxShadow: '0 6px 18px rgba(124,58,237,0.6)' },
+            }}
           >
-            Log Session
-          </Button>
+            <AddIcon sx={{ fontSize: 18 }} /> Log Session
+          </Box>
         </Box>
 
-        {isLoading ? (
-          <Typography color="text.secondary">Loading sessions...</Typography>
-        ) : !logs?.length ? (
-          <EmptyState
-            icon="📖"
-            title="No sessions logged yet"
-            description="Start tracking how much you read every day!"
-            actionLabel="Log your first session"
-            onAction={() => dispatch(openLogModal(null))}
-          />
-        ) : (
-          <Grid container spacing={2}>
-            {logs.map((log) => {
-              const moodConfig = MOODS.find((m) => m.value === log.mood);
-              return (
-                <Grid item xs={12} sm={6} md={4} key={log.id}>
-                  <Card
-                    elevation={0}
-                    sx={{
-                      border: "1px solid",
-                      borderColor: "divider",
-                      borderRadius: 3,
-                      "&:hover": { borderColor: "primary.main" },
-                      transition: "border-color 0.15s",
-                    }}
-                  >
-                    <CardContent>
-                      <Box
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="flex-start"
-                        mb={1}
-                      >
-                        <Typography variant="caption" color="text.secondary">
-                          {formatDate(log.date)}
-                        </Typography>
-                        <Typography fontSize={20}>
-                          {moodConfig?.emoji}
-                        </Typography>
-                      </Box>
-
-                      <Typography
-                        variant="subtitle1"
-                        fontWeight={600}
-                        noWrap
-                        sx={{ mb = 0.5 }}
-                      >
-                        {log.book?.title || "Unknown book"}
+        {isLoading
+          ? <Typography sx={{ color: 'text.secondary' }}>Loading...</Typography>
+          : !logs?.length
+          ? <EmptyState icon="📖" title="No sessions logged" description="Start tracking your reading every day!" actionLabel="Log first session" onAction={() => dispatch(openLogModal(null))} />
+          : <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 2 }}>
+              {logs.map((log) => {
+                const mood = MOODS.find((m) => m.value === log.mood);
+                return (
+                  <Box key={log.id} sx={{
+                    p: 3, borderRadius: 3,
+                    border: '1px solid rgba(124,58,237,0.12)',
+                    bgcolor: 'rgba(124,58,237,0.03)',
+                    transition: 'all 0.2s',
+                    '&:hover': { borderColor: 'rgba(124,58,237,0.35)', transform: 'translateY(-2px)', boxShadow: '0 8px 24px rgba(124,58,237,0.15)' },
+                  }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+                      <Typography sx={{ fontSize: 12, color: 'text.secondary', fontWeight: 600 }}>
+                        {formatDate(log.date)}
                       </Typography>
-
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        mb={1.5}
-                      >
-                        by {log.book?.author}
-                      </Typography>
-
-                      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                        <Chip
-                          label={`📄 ${log.pagesRead} pages`}
-                          size="small"
-                          color="primary"
-                          variant="outlined"
-                        />
-                        {log.minutesSpent && (
-                          <Chip
-                            label={`⏱️ ${formatMinutes(log.minutesSpent)}`}
-                            size="small"
-                            variant="outlined"
-                          />
-                        )}
-                        <Chip
-                          label={`🎯 Focus ${log.focusLevel}/5`}
-                          size="small"
-                          variant="outlined"
-                        />
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              );
-            })}
-          </Grid>
-        )}
+                      <Typography sx={{ fontSize: 26 }}>{mood?.emoji}</Typography>
+                    </Box>
+                    <Typography sx={{ fontWeight: 700, fontSize: 15, color: 'text.primary', mb: 0.25 }} noWrap>
+                      {log.book?.title || 'Unknown book'}
+                    </Typography>
+                    <Typography sx={{ fontSize: 12, color: 'text.secondary', mb: 2 }} noWrap>
+                      by {log.book?.author}
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      <Chip label={`📄 ${log.pagesRead} pages`} size="small"
+                        sx={{ bgcolor: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: 'none', fontWeight: 600, fontSize: 11 }} />
+                      {log.minutesSpent && (
+                        <Chip label={`⏱️ ${formatMinutes(log.minutesSpent)}`} size="small"
+                          sx={{ bgcolor: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: 'none', fontWeight: 600, fontSize: 11 }} />
+                      )}
+                      <Chip label={`🎯 ${log.focusLevel}/5`} size="small"
+                        sx={{ bgcolor: 'rgba(16,185,129,0.1)', color: '#10b981', border: 'none', fontWeight: 600, fontSize: 11 }} />
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Box>
+        }
       </Box>
     </Box>
   );

@@ -1,16 +1,5 @@
 'use client';
-import {
-  Box,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  Button,
-  Chip,
-  Rating,
-  Divider,
-  CircularProgress,
-} from '@mui/material';
+import { Box, Typography, Button, Chip, CircularProgress } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import { useParams, useRouter } from 'next/navigation';
@@ -24,8 +13,6 @@ import LogForm from '@/components/logs/LogForm';
 import EmptyState from '@/components/ui/EmptyState';
 import { useBook } from '@/hooks/useBooks';
 import { useLogs } from '@/hooks/useLogs';
-import { useAppDispatch } from '@/store/hooks';
-import { openLogModal } from '@/store/slices/uiSlice';
 import { getProgressPercent, formatDate, formatMinutes } from '@/utils/formatters';
 import { MOODS } from '@/constants/moods';
 import { COVER_COLORS } from '@/constants/levels';
@@ -33,307 +20,162 @@ import { COVER_COLORS } from '@/constants/levels';
 export default function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [isLogging, setIsLogging] = useState(false);
-
   const { data: book, isLoading: bookLoading } = useBook(id);
   const { data: logs, isLoading: logsLoading } = useLogs({ bookId: id });
 
-  if (bookLoading) {
-    return (
-      <Box>
-        <TopBar title="Book Detail" />
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          height={400}
-        >
-          <CircularProgress />
-        </Box>
+  if (bookLoading) return (
+    <Box>
+      <TopBar title="Book Detail" />
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 400 }}>
+        <CircularProgress sx={{ color: '#7c3aed' }} />
       </Box>
-    );
-  }
+    </Box>
+  );
 
-  if (!book) {
-    return (
-      <Box>
-        <TopBar title="Book Not Found" />
-        <EmptyState
-          icon="🔍"
-          title="Book not found"
-          description="This book doesn't exist or was deleted."
-          actionLabel="Back to Library"
-          onAction={() => router.push('/books')}
-        />
-      </Box>
-    );
-  }
+  if (!book) return (
+    <Box><TopBar title="Not Found" />
+      <EmptyState icon="🔍" title="Book not found" description="This book doesn't exist or was deleted." actionLabel="Back to Library" onAction={() => router.push('/books')} />
+    </Box>
+  );
 
   const progress = getProgressPercent(book.currentPage, book.totalPages);
-  const coverColor =
-    book.coverColor ||
-    COVER_COLORS[book.title.charCodeAt(0) % COVER_COLORS.length];
-
-  const totalPagesRead = logs?.reduce((sum, l) => sum + l.pagesRead, 0) || 0;
-  const totalMinutes = logs?.reduce((sum, l) => sum + (l.minutesSpent || 0), 0) || 0;
+  const coverColor = book.coverColor || COVER_COLORS[book.title.charCodeAt(0) % COVER_COLORS.length];
+  const totalPages = logs?.reduce((s, l) => s + l.pagesRead, 0) || 0;
+  const totalMins = logs?.reduce((s, l) => s + (l.minutesSpent || 0), 0) || 0;
 
   return (
     <Box>
       <TopBar title="Book Detail" />
-      <Box sx={{ px: 4, py: 3 }}>
-        {/* Back button */}
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => router.push('/books')}
-          sx={{ mb: 3, borderRadius: 2 }}
-          color="inherit"
-        >
+      <Box sx={{ px: 4, py: 3, maxWidth: 1200 }}>
+        <Button startIcon={<ArrowBackIcon />} onClick={() => router.push('/books')}
+          sx={{ mb: 3, color: 'text.secondary', '&:hover': { color: 'text.primary' } }}>
           Back to Library
         </Button>
 
-        <Grid container spacing={3}>
-          {/* Left: Book Info */}
-          <Grid item xs={12} md={4}>
-            <Card
-              elevation={0}
-              sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}
-            >
-              {/* Cover */}
-              <Box
-                sx={{
-                  height: 200,
-                  background: `linear-gradient(135deg, ${coverColor}cc, ${coverColor}44)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 64,
-                }}
-              >
-                📚
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '320px 1fr' }, gap: 3 }}>
+          {/* Left panel */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {/* Cover */}
+            <Box sx={{
+              borderRadius: 3, overflow: 'hidden',
+              border: '1px solid rgba(124,58,237,0.15)',
+            }}>
+              <Box sx={{
+                height: 200,
+                background: `linear-gradient(135deg, ${coverColor}99, ${coverColor}44)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Typography sx={{ fontSize: 80, filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))' }}>📖</Typography>
               </Box>
-
-              <CardContent>
-                <Box sx={{mb:2}}>
+              <Box sx={{ p: 3, bgcolor: 'rgba(124,58,237,0.03)' }}>
+                <Box sx={{ mb: 1.5 }}>
                   <BookStatusBadge status={book.status} />
                 </Box>
-
-                <Typography variant="h5" fontWeight={700} mb={0.5}>
+                <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', mb: 0.5, lineHeight: 1.2 }}>
                   {book.title}
                 </Typography>
-                <Typography variant="body1" color="text.secondary" mb={2}>
-                  by {book.author}
-                </Typography>
+                <Typography sx={{ color: 'text.secondary', mb: 2 }}>by {book.author}</Typography>
 
-                {book.rating && (
-                  <Rating value={book.rating} readOnly sx={{ mb: 2 }} />
-                )}
-
-                {book.genre && (
-                  <Chip label={book.genre} size="small" sx={{ mb: 2 }} />
-                )}
-
-                {book.difficulty && (
-                  <Chip
-                    label={
-                      book.difficulty === 'easy'
-                        ? '🟢 Easy'
-                        : book.difficulty === 'medium'
-                        ? '🟡 Medium'
-                        : '🔴 Hard'
-                    }
-                    size="small"
-                    sx={{ ml: 1, mb: 2 }}
-                    variant="outlined"
-                  />
-                )}
-
-                <Divider sx={{ my: 2 }} />
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+                  {book.genre && <Chip label={book.genre} size="small" sx={{ bgcolor: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: 'none' }} />}
+                  {book.difficulty && <Chip label={book.difficulty} size="small" variant="outlined" sx={{ borderColor: 'rgba(124,58,237,0.3)', color: 'text.secondary' }} />}
+                </Box>
 
                 {book.totalPages && (
-                  <Box sx={{mb:2}}>
-                    <ProgressBar
-                      value={progress}
-                      label={`${book.currentPage} / ${book.totalPages} pages`}
-                      height={8}
-                      color={
-                        book.status === 'completed' ? 'success' : 'primary'
-                      }
-                    />
+                  <Box sx={{ mb: 2 }}>
+                    <ProgressBar value={progress} label={`${book.currentPage} / ${book.totalPages} pages`} height={8} color={book.status === 'completed' ? 'success' : 'primary'} />
                   </Box>
                 )}
 
-                <Grid container spacing={1} mb={2}>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" color="text.secondary">
-                      Sessions
-                    </Typography>
-                    <Typography variant="h6" fontWeight={700}>
-                      {logs?.length || 0}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" color="text.secondary">
-                      Pages read
-                    </Typography>
-                    <Typography variant="h6" fontWeight={700}>
-                      {totalPagesRead}
-                    </Typography>
-                  </Grid>
-                  {totalMinutes > 0 && (
-                    <Grid item xs={12}>
-                      <Typography variant="caption" color="text.secondary">
-                        Total time
-                      </Typography>
-                      <Typography variant="h6" fontWeight={700}>
-                        {formatMinutes(totalMinutes)}
-                      </Typography>
-                    </Grid>
-                  )}
-                </Grid>
+                {/* Stats row */}
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, mb: 2 }}>
+                  {[
+                    { label: 'Sessions', value: logs?.length || 0 },
+                    { label: 'Pages Read', value: totalPages },
+                    ...(totalMins > 0 ? [{ label: 'Time Spent', value: formatMinutes(totalMins) }] : []),
+                  ].map((s) => (
+                    <Box key={s.label} sx={{ p: 1.5, borderRadius: 2, bgcolor: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.12)' }}>
+                      <Typography sx={{ fontSize: 10, color: 'text.secondary', mb: 0.25, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</Typography>
+                      <Typography sx={{ fontSize: 20, fontWeight: 800, color: '#a78bfa' }}>{s.value}</Typography>
+                    </Box>
+                  ))}
+                </Box>
 
                 {book.whyIWantToRead && (
-                  <Box
-                    sx={{
-                      p: 1.5,
-                      borderRadius: 2,
-                      bgcolor: 'action.hover',
-                      mb: 2,
-                    }}
-                  >
-                    <Typography variant="caption" color="text.secondary" display="block" mb={0.5}>
-                      🎯 Why I want to read this
-                    </Typography>
-                    <Typography variant="body2" fontStyle="italic">
-                      {book.whyIWantToRead}
-                    </Typography>
+                  <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', mb: 2 }}>
+                    <Typography sx={{ fontSize: 11, color: '#f59e0b', fontWeight: 700, mb: 0.5 }}>🎯 WHY I WANT TO READ THIS</Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>{book.whyIWantToRead}</Typography>
                   </Box>
                 )}
 
-                <Box sx={{ display: "flex", gap: 1 }}>
+                <Box sx={{ display: 'flex', gap: 1 }}>
                   {(book.status === 'in_progress' || book.status === 'to_read') && (
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      onClick={() => setIsLogging(true)}
-                      sx={{ borderRadius: 2 }}
-                    >
+                    <Button variant="contained" fullWidth onClick={() => setIsLogging(true)} sx={{ borderRadius: 2 }}>
                       📖 Log Session
                     </Button>
                   )}
-                  <Button
-                    variant="outlined"
-                    onClick={() => setIsEditing(true)}
-                    sx={{ borderRadius: 2 }}
-                    startIcon={<EditIcon />}
-                  >
-                    Edit
+                  <Button variant="outlined" onClick={() => setIsEditing(true)}
+                    sx={{ borderRadius: 2, borderColor: 'rgba(124,58,237,0.3)', color: '#a78bfa', minWidth: 0, px: 2, '&:hover': { borderColor: '#7c3aed', bgcolor: 'rgba(124,58,237,0.1)' } }}>
+                    <EditIcon sx={{ fontSize: 18 }} />
                   </Button>
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Box>
+            </Box>
+          </Box>
 
-          {/* Right: Reading Logs */}
-          <Grid item xs={12} md={8}>
-            <Typography variant="h6" fontWeight={600} mb={2}>
-              📝 Reading Sessions
-            </Typography>
-
-            {logsLoading ? (
-              <CircularProgress />
-            ) : !logs?.length ? (
-              <Card
-                elevation={0}
-                sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}
-              >
-                <EmptyState
-                  icon="📖"
-                  title="No sessions logged yet"
-                  description="Start tracking your reading sessions!"
-                  actionLabel="Log first session"
-                  onAction={() => setIsLogging(true)}
-                />
-              </Card>
-            ) : (
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {logs.map((log) => {
-                  const moodConfig = MOODS.find((m) => m.value === log.mood);
-                  return (
-                    <Card
-                      key={log.id}
-                      elevation={0}
-                      sx={{
-                        border: '1px solid',
-                        borderColor: 'divider',
-                        borderRadius: 2,
-                        '&:hover': { borderColor: 'primary.main' },
-                        transition: 'border-color 0.15s',
-                      }}
-                    >
-                      <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
-                        <Box
-                          display="flex"
-                          justifyContent="space-between"
-                          alignItems="flex-start"
-                        >
+          {/* Right: Sessions */}
+          <Box>
+            <Typography variant="h6" component="div" sx={{ fontWeight: 700, mb: 2 }}>📝 Reading Sessions</Typography>
+            {logsLoading
+              ? <CircularProgress sx={{ color: '#7c3aed' }} />
+              : !logs?.length
+              ? <Box sx={{ borderRadius: 3, border: '1px solid rgba(124,58,237,0.15)', bgcolor: 'rgba(124,58,237,0.02)' }}>
+                  <EmptyState icon="📖" title="No sessions yet" description="Start tracking your reading!" actionLabel="Log first session" onAction={() => setIsLogging(true)} />
+                </Box>
+              : <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  {logs.map((log) => {
+                    const mood = MOODS.find((m) => m.value === log.mood);
+                    return (
+                      <Box key={log.id} sx={{
+                        p: 2.5, borderRadius: 3,
+                        border: '1px solid rgba(124,58,237,0.12)',
+                        bgcolor: 'rgba(124,58,237,0.03)',
+                        '&:hover': { borderColor: 'rgba(124,58,237,0.3)', bgcolor: 'rgba(124,58,237,0.06)' },
+                        transition: 'all 0.15s',
+                      }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <Box>
-                            <Typography variant="body1" fontWeight={600}>
+                            <Typography sx={{ fontWeight: 700, fontSize: 16, color: 'text.primary', mb: 0.25 }}>
                               {log.pagesRead} pages read
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>
                               {formatDate(log.date)}
-                              {log.minutesSpent
-                                ? ` · ${formatMinutes(log.minutesSpent)}`
-                                : ''}
+                              {log.minutesSpent ? ` · ${formatMinutes(log.minutesSpent)}` : ''}
                             </Typography>
                           </Box>
-                          <Box textAlign="right">
-                            <Typography fontSize={24}>
-                              {moodConfig?.emoji}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              Focus: {log.focusLevel}/5
-                            </Typography>
+                          <Box sx={{ textAlign: 'right' }}>
+                            <Typography sx={{ fontSize: 28, lineHeight: 1, mb: 0.5 }}>{mood?.emoji}</Typography>
+                            <Box sx={{ px: 1, py: 0.25, borderRadius: 10, bgcolor: 'rgba(124,58,237,0.1)' }}>
+                              <Typography sx={{ fontSize: 10, color: '#a78bfa', fontWeight: 700 }}>Focus {log.focusLevel}/5</Typography>
+                            </Box>
                           </Box>
                         </Box>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </Box>
-            )}
-          </Grid>
-        </Grid>
+                      </Box>
+                    );
+                  })}
+                </Box>
+            }
+          </Box>
+        </Box>
       </Box>
 
-      {/* Edit Modal */}
-      <Modal
-        open={isEditing}
-        onClose={() => setIsEditing(false)}
-        title="Edit Book ✏️"
-        maxWidth="sm"
-      >
-        <BookForm
-          book={book}
-          onSuccess={() => setIsEditing(false)}
-          onCancel={() => setIsEditing(false)}
-        />
+      <Modal open={isEditing} onClose={() => setIsEditing(false)} title="✏️ Edit Book">
+        <BookForm book={book} onSuccess={() => setIsEditing(false)} onCancel={() => setIsEditing(false)} />
       </Modal>
-
-      {/* Log Session Modal */}
-      <Modal
-        open={isLogging}
-        onClose={() => setIsLogging(false)}
-        title="Log Reading Session 📖"
-        maxWidth="sm"
-      >
-        <LogForm
-          defaultBookId={book.id}
-          onSuccess={() => setIsLogging(false)}
-          onCancel={() => setIsLogging(false)}
-        />
+      <Modal open={isLogging} onClose={() => setIsLogging(false)} title="📖 Log Session">
+        <LogForm defaultBookId={book.id} onSuccess={() => setIsLogging(false)} onCancel={() => setIsLogging(false)} />
       </Modal>
     </Box>
   );
