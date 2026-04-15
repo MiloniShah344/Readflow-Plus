@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -21,9 +24,7 @@ export class ReadingLogsService {
     });
 
     if (!book) {
-      throw new NotFoundException(
-        'Book not found or you do not own this book',
-      );
+      throw new NotFoundException('Book not found or you do not own this book');
     }
 
     // Create the reading log

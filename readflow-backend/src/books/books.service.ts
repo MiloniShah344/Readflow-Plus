@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Book } from './entities/book.entity';
+import { Book, BookStatus } from './entities/book.entity';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 
@@ -94,10 +94,11 @@ export class BooksService {
 
     return {
       total: books.length,
-      completed: books.filter((b) => b.status === 'completed').length,
-      inProgress: books.filter((b) => b.status === 'in_progress').length,
-      toRead: books.filter((b) => b.status === 'to_read').length,
-      dropped: books.filter((b) => b.status === 'dropped').length,
+      completed: books.filter((b) => b.status === BookStatus.COMPLETED).length,
+      inProgress: books.filter((b) => b.status === BookStatus.IN_PROGRESS)
+        .length,
+      toRead: books.filter((b) => b.status === BookStatus.TO_READ).length,
+      dropped: books.filter((b) => b.status === BookStatus.DROPPED).length,
     };
   }
 }

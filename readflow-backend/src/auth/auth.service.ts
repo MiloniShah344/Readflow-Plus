@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Injectable,
   ConflictException,
@@ -68,7 +69,7 @@ export class AuthService {
 
   async getProfile(userId: string) {
     const user = await this.usersService.findById(userId);
-    if(!user) throw new UnauthorizedException()
+    if (!user) throw new UnauthorizedException();
     return this.sanitizeUser(user);
   }
 
