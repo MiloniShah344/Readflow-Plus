@@ -13,6 +13,8 @@ import { ReadingLog } from './reading-logs/entities/reading-log.entity';
 import { StreaksModule } from './streaks/streaks.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { Streak } from './streaks/entities/streak.entity';
+import { GamificationModule } from './gamification/gamification.module';
+import { UserAchievement } from './gamification/entities/user-achievement.entity';
 
 @Module({
   imports: [
@@ -23,7 +25,7 @@ import { Streak } from './streaks/entities/streak.entity';
         url:
           process.env.DATABASE_URL ??
           'postgresql://postgres:Readflow2026@db.adxqtfxzsnnvawipvhkr.supabase.co:5432/postgres',
-        entities: [User, Book, ReadingLog, Streak],
+        entities: [User, Book, ReadingLog, Streak, UserAchievement],
         synchronize: true,
         ssl: { rejectUnauthorized: false },
         logging: process.env.NODE_ENV === 'development',
@@ -38,6 +40,7 @@ import { Streak } from './streaks/entities/streak.entity';
     ReadingLogsModule,
     StreaksModule,
     AnalyticsModule,
+    GamificationModule,
   ],
   providers: [
     {

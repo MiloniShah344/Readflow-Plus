@@ -1,14 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Mood, ReadingLog } from './entities/reading-log.entity';
-import { Book } from '../books/entities/book.entity';
+import { Book, BookStatus } from '../books/entities/book.entity';
 import { CreateReadingLogDto } from './dto/create-reading-log.dto';
 import { StreaksService } from '../streaks/streaks.service';
+import { GamificationService } from '../gamification/gamification.service';
 
+const XP_PER_SESSION = 10;
 @Injectable()
 export class ReadingLogsService {
   constructor(
@@ -17,9 +23,10 @@ export class ReadingLogsService {
     @InjectRepository(Book)
     private readonly bookRepository: Repository<Book>,
     private readonly streaksService: StreaksService,
+    private readonly gamificationService: GamificationService,
   ) {}
 
-  async create(userId: string, dto: CreateReadingLogDto): Promise<ReadingLog> {
+  async create(userId: string, dto: CreateReadingLogDto) {
     // Verify book belongs to user
     const book = await this.bookRepository.findOne({
       where: { id: dto.bookId, userId },
@@ -27,6 +34,15 @@ export class ReadingLogsService {
 
     if (!book) {
       throw new NotFoundException('Book not found or you do not own this book');
+    }
+
+    const remainingPages =
+      (book.totalPages || Infinity) - (book.currentPage || 0);
+
+    if (dto.pagesRead > remainingPages) {
+      throw new BadRequestException(
+        `Cannot log more than ${remainingPages} pages`,
+      );
     }
 
     // Create the reading log
@@ -43,20 +59,44 @@ export class ReadingLogsService {
 
     const saved = await this.logRepository.save(log);
 
-    // Update book's current page
-    const newCurrentPage = Math.min(
-      book.currentPage + dto.pagesRead,
-      book.totalPages || book.currentPage + dto.pagesRead,
-    );
+    const totalPages = book.totalPages || Infinity;
+    const newCurrentPage = book.currentPage + dto.pagesRead;
+
+    let newStatus = book.status;
+
+    // Auto mark in progress
+    if (book.status === BookStatus.TO_READ) {
+      newStatus = BookStatus.IN_PROGRESS;
+    }
+
+    // Auto complete
+    if (newCurrentPage >= totalPages) {
+      newStatus = BookStatus.COMPLETED;
+    }
 
     await this.bookRepository.update(dto.bookId, {
       currentPage: newCurrentPage,
+      status: newStatus,
     });
 
     // Update streak
     await this.streaksService.checkAndUpdateStreak(userId, logDate);
+    // Gamification — grant XP then check achievements
+    const xpResult = await this.gamificationService.grantXP(
+      userId,
+      XP_PER_SESSION,
+    );
+    const newAchievements =
+      await this.gamificationService.checkAchievements(userId);
 
-    return saved;
+    return {
+      ...saved,
+      xpGained: XP_PER_SESSION,
+      newAchievements,
+      leveledUp: xpResult.leveledUp,
+      newLevel: xpResult.newLevel,
+      newLevelName: xpResult.newLevelName,
+    };
   }
 
   async findAll(

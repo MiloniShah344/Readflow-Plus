@@ -1,8 +1,9 @@
+import { GamificationResult } from '@/types/gamification.types';
 import api from './api';
 import { ReadingLog, CreateLogInput } from '@/types/log.types';
 
 export const logsService = {
-  async create(data: CreateLogInput): Promise<ReadingLog> {
+  async create(data: CreateLogInput): Promise<{ log: ReadingLog } & GamificationResult> {
     return api.post('/reading-logs', data, );
   },
 

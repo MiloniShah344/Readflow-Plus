@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { booksService } from '@/services/books.service';
 import { CreateBookInput, UpdateBookInput } from '@/types/book.types';
+import { ANALYTICS_KEY } from './useAnalytics';
+import { GAMIFICATION_KEY } from './useGamification';
 import toast from 'react-hot-toast';
 
 export const BOOKS_KEY = 'books';
@@ -29,7 +31,6 @@ export function useBookStats() {
 
 export function useCreateBook() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: CreateBookInput) => booksService.create(data),
     onSuccess: () => {
@@ -44,13 +45,33 @@ export function useCreateBook() {
 
 export function useUpdateBook() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateBookInput }) =>
       booksService.update(id, data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [BOOKS_KEY] });
+      queryClient.invalidateQueries({ queryKey: [ANALYTICS_KEY] });
+      queryClient.invalidateQueries({ queryKey: [GAMIFICATION_KEY] });
+
       toast.success('Book updated!');
+
+      if (response.leveledUp) {
+        setTimeout(() => {
+          toast.success(
+            `🎉 Level Up! You're now Level ${response.newLevel} — ${response.newLevelName}!`,
+            { duration: 6000, icon: '🏅' },
+          );
+        }, 400);
+      }
+
+      response.newAchievements?.forEach((achievement, i) => {
+        setTimeout(() => {
+          toast.success(
+            `🏆 ${achievement.icon} ${achievement.name} unlocked! (+${achievement.xpReward} XP)`,
+            { duration: 6000 },
+          );
+        }, 800 + i * 600);
+      });
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to update book');
@@ -60,7 +81,6 @@ export function useUpdateBook() {
 
 export function useDeleteBook() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (id: string) => booksService.remove(id),
     onSuccess: () => {

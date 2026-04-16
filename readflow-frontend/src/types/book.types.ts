@@ -34,6 +34,7 @@ export interface CreateBookInput {
 
 export interface UpdateBookInput extends Partial<CreateBookInput> {
   currentPage?: number;
+  status?: BookStatus;
 }
 
 export interface BookStats {

@@ -1,3 +1,4 @@
+import { GamificationResult } from '@/types/gamification.types';
 import api from './api';
 import { Book, BookStats, CreateBookInput, UpdateBookInput } from '@/types/book.types';
 
@@ -18,7 +19,7 @@ export const booksService = {
     return api.post('/books', data);
   },
 
-  async update(id: string, data: UpdateBookInput): Promise<Book> {
+  async update(id: string, data: UpdateBookInput): Promise<{ book: Book } & GamificationResult> {
     return api.patch(`/books/${id}`, data);
   },
 

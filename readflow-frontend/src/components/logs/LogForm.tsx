@@ -58,11 +58,19 @@ export default function LogForm({
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.bookId) e.bookId = "Please select a book";
+    if (remainingPages !== undefined && form.pagesRead > remainingPages) {
+      e.pagesRead = `Only ${remainingPages} pages remaining`;
+    }
     if (!form.pagesRead || form.pagesRead < 1)
       e.pagesRead = "Enter at least 1 page";
     setErrors(e);
     return !Object.keys(e).length;
   };
+
+  const selectedBook = books?.find((b) => b.id === form.bookId);
+  const remainingPages = selectedBook
+    ? (selectedBook.totalPages || 0) - (selectedBook.currentPage || 0)
+    : undefined;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,11 +129,14 @@ export default function LogForm({
             }))
           }
           error={!!errors.pagesRead}
-          helperText={errors.pagesRead}
+          helperText={
+            errors.pagesRead ||
+            (remainingPages !== undefined ? `${remainingPages} pages left` : "")
+          }
           size="small"
           sx={fieldSx}
           slotProps={{
-            htmlInput: { min: 1 },
+            htmlInput: { min: 1, max: remainingPages || undefined },
           }}
         />
         <TextField

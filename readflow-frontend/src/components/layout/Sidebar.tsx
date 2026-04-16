@@ -16,6 +16,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import { getLevelInfo } from "@/utils/formatters";
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 const NAV = [
   {
@@ -32,6 +33,11 @@ const NAV = [
     label: "Reading Logs",
     href: "/dashboard/logs",
     icon: <HistoryIcon fontSize="small" />,
+  },
+  {
+    label: "Achievements",
+    href: "/dashboard/achievements",
+    icon: <EmojiEventsIcon fontSize="small" />,
   },
 ];
 
