@@ -9,3 +9,11 @@ html, body { height: 100%; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.6); }
+
+/* react-calendar-heatmap base overrides */
+.react-calendar-heatmap { width: 100%; }
+.react-calendar-heatmap .heatmap-empty { fill: rgba(124,58,237,0.06); rx: 2; }
+.react-calendar-heatmap .heatmap-1 { fill: rgba(124,58,237,0.22); }
+.react-calendar-heatmap .heatmap-2 { fill: rgba(124,58,237,0.45); }
+.react-calendar-heatmap .heatmap-3 { fill: rgba(124,58,237,0.65); }
+.react-calendar-heatmap .heatmap-4 { fill: rgba(124,58,237,0.9); }

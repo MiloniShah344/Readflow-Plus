@@ -18,7 +18,7 @@ export class BooksService {
 
   async findAll(
     userId: string,
-    status?: string,
+    status?: BookStatus,
     genre?: string,
   ): Promise<Book[]> {
     const query = this.bookRepository

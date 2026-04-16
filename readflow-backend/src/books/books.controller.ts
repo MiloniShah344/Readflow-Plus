@@ -13,6 +13,7 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
+import { BookStatus } from './entities/book.entity';
 
 @Controller('books')
 export class BooksController {
@@ -21,7 +22,7 @@ export class BooksController {
   @Get()
   findAll(
     @CurrentUser() user: User,
-    @Query('status') status?: string,
+    @Query('status') status?: BookStatus,
     @Query('genre') genre?: string,
   ) {
     return this.booksService.findAll(user.id, status, genre);

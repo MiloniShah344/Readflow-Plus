@@ -4,9 +4,10 @@ import { ReadingLogsController } from './reading-logs.controller';
 import { ReadingLogsService } from './reading-logs.service';
 import { ReadingLog } from './entities/reading-log.entity';
 import { Book } from '../books/entities/book.entity';
+import { StreaksModule } from '../streaks/streaks.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ReadingLog, Book])],
+  imports: [TypeOrmModule.forFeature([ReadingLog, Book]), StreaksModule],
   controllers: [ReadingLogsController],
   providers: [ReadingLogsService],
   exports: [ReadingLogsService],

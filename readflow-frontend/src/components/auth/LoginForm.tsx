@@ -17,58 +17,37 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(''); setLoading(true);
+    e.preventDefault(); setError(''); setLoading(true);
     try {
       const res = await authService.login(email, password);
       dispatch(setCredentials({ user: res.user, token: res.token }));
-      router.replace('/dashboard');
-    } catch (err: any) { setError(err.message || 'Login failed'); }
-    finally { setLoading(false); }
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please try again.');
+    } finally { setLoading(false); }
   };
 
   return (
     <Box component="form" onSubmit={handleSubmit}>
       <Box sx={{ textAlign: 'center', mb: 4 }}>
         <Typography sx={{ fontSize: 40, mb: 1 }}>📚</Typography>
-        <Typography variant="h5" sx={{ fontWeight: 800, color: '#e8e6f0', mb: 0.5 }}>
-          Welcome back
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#9990b8' }}>
-          Continue your reading journey
-        </Typography>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: '#e8e6f0', mb: 0.5 }}>Welcome back</Typography>
+        <Typography variant="body2" sx={{ color: '#9990b8' }}>Continue your reading journey</Typography>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-        <TextField
-          label="Email address"
-          type="email"
-          fullWidth
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          autoFocus
+        <TextField label="Email address" type="email" fullWidth value={email}
+          onChange={(e) => setEmail(e.target.value)} required autoFocus
           sx={{ '& .MuiInputBase-input': { color: '#e8e6f0' }, '& .MuiInputLabel-root': { color: '#9990b8' } }}
         />
-        <TextField
-          label="Password"
-          type="password"
-          fullWidth
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
+        <TextField label="Password" type="password" fullWidth value={password}
+          onChange={(e) => setPassword(e.target.value)} required
           sx={{ '& .MuiInputBase-input': { color: '#e8e6f0' }, '& .MuiInputLabel-root': { color: '#9990b8' } }}
         />
-        <Button
-          type="submit"
-          variant="contained"
-          fullWidth
-          size="large"
-          disabled={loading}
-          sx={{ py: 1.5, fontSize: 16, fontWeight: 700, mt: 1 }}
-        >
+        <Button type="submit" variant="contained" fullWidth size="large" disabled={loading}
+          sx={{ py: 1.5, fontSize: 16, fontWeight: 700, mt: 1 }}>
           {loading ? <CircularProgress size={22} color="inherit" /> : 'Log In'}
         </Button>
       </Box>

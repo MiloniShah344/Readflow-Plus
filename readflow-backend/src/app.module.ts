@@ -10,6 +10,9 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { User } from './users/entities/user.entity';
 import { Book } from './books/entities/book.entity';
 import { ReadingLog } from './reading-logs/entities/reading-log.entity';
+import { StreaksModule } from './streaks/streaks.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { Streak } from './streaks/entities/streak.entity';
 
 @Module({
   imports: [
@@ -20,7 +23,7 @@ import { ReadingLog } from './reading-logs/entities/reading-log.entity';
         url:
           process.env.DATABASE_URL ??
           'postgresql://postgres:Readflow2026@db.adxqtfxzsnnvawipvhkr.supabase.co:5432/postgres',
-        entities: [User, Book, ReadingLog],
+        entities: [User, Book, ReadingLog, Streak],
         synchronize: true,
         ssl: { rejectUnauthorized: false },
         logging: process.env.NODE_ENV === 'development',
@@ -33,6 +36,8 @@ import { ReadingLog } from './reading-logs/entities/reading-log.entity';
     UsersModule,
     BooksModule,
     ReadingLogsModule,
+    StreaksModule,
+    AnalyticsModule,
   ],
   providers: [
     {

@@ -12,6 +12,7 @@ export default function RegisterForm() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
@@ -23,50 +24,39 @@ export default function RegisterForm() {
     if (password.length < 6) return setError('Password must be at least 6 characters');
     setLoading(true);
     try {
-      const res = await authService.register(email, password);
+      const res = await authService.register(name, email, password);
       dispatch(setCredentials({ user: res.user, token: res.token }));
-      router.push('/');
-    } catch (err: any) { setError(err.message || 'Registration failed'); }
-    finally { setLoading(false); }
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally { setLoading(false); }
   };
 
   return (
     <Box component="form" onSubmit={handleSubmit}>
       <Box sx={{ textAlign: 'center', mb: 4 }}>
         <Typography sx={{ fontSize: 40, mb: 1 }}>🚀</Typography>
-        <Typography variant="h5" sx={{ fontWeight: 800, color: '#e8e6f0', mb: 0.5 }}>
-          Start reading smarter
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#9990b8' }}>
-          Free forever. No credit card needed.
-        </Typography>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: '#e8e6f0', mb: 0.5 }}>Start reading smarter</Typography>
+        <Typography variant="body2" sx={{ color: '#9990b8' }}>Free forever. No credit card.</Typography>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-        <TextField
-          label="Email address"
-          type="email"
-          fullWidth value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required autoFocus
+        <TextField label="Name" type="email" fullWidth value={name}
+          onChange={(e) => setName(e.target.value)} required autoFocus
           sx={{ '& .MuiInputBase-input': { color: '#e8e6f0' }, '& .MuiInputLabel-root': { color: '#9990b8' } }}
         />
-        <TextField
-          label="Password"
-          type="password"
-          fullWidth value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required helperText="At least 6 characters"
+        <TextField label="Email address" type="email" fullWidth value={email}
+          onChange={(e) => setEmail(e.target.value)} required
+          sx={{ '& .MuiInputBase-input': { color: '#e8e6f0' }, '& .MuiInputLabel-root': { color: '#9990b8' } }}
+        />
+        <TextField label="Password" type="password" fullWidth value={password}
+          onChange={(e) => setPassword(e.target.value)} required helperText="At least 6 characters"
           sx={{ '& .MuiInputBase-input': { color: '#e8e6f0' }, '& .MuiInputLabel-root': { color: '#9990b8' }, '& .MuiFormHelperText-root': { color: '#9990b8' } }}
         />
-        <TextField
-          label="Confirm password"
-          type="password"
-          fullWidth value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          required
+        <TextField label="Confirm password" type="password" fullWidth value={confirm}
+          onChange={(e) => setConfirm(e.target.value)} required
           sx={{ '& .MuiInputBase-input': { color: '#e8e6f0' }, '& .MuiInputLabel-root': { color: '#9990b8' } }}
         />
         <Button type="submit" variant="contained" fullWidth size="large" disabled={loading}

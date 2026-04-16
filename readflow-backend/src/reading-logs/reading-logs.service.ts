@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { Mood, ReadingLog } from './entities/reading-log.entity';
 import { Book } from '../books/entities/book.entity';
 import { CreateReadingLogDto } from './dto/create-reading-log.dto';
+import { StreaksService } from '../streaks/streaks.service';
 
 @Injectable()
 export class ReadingLogsService {
@@ -15,6 +16,7 @@ export class ReadingLogsService {
     private readonly logRepository: Repository<ReadingLog>,
     @InjectRepository(Book)
     private readonly bookRepository: Repository<Book>,
+    private readonly streaksService: StreaksService,
   ) {}
 
   async create(userId: string, dto: CreateReadingLogDto): Promise<ReadingLog> {
@@ -29,10 +31,12 @@ export class ReadingLogsService {
 
     // Create the reading log
     const today = new Date().toISOString().split('T')[0];
+    const logDate = dto.date || today;
+
     const log = this.logRepository.create({
       ...dto,
       userId,
-      date: dto.date || today,
+      date: logDate,
       mood: dto.mood || Mood.NEUTRAL,
       focusLevel: dto.focusLevel || 3,
     });
@@ -48,6 +52,9 @@ export class ReadingLogsService {
     await this.bookRepository.update(dto.bookId, {
       currentPage: newCurrentPage,
     });
+
+    // Update streak
+    await this.streaksService.checkAndUpdateStreak(userId, logDate);
 
     return saved;
   }

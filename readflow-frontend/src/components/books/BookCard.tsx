@@ -26,7 +26,7 @@ export default function BookCard({ book, onEdit }: { book: Book; onEdit?: (b: Bo
 
   return (
     <Box
-      onClick={() => router.push(`/books/${book.id}`)}
+      onClick={() => router.push(`/dashboard/books/${book.id}`)}
       sx={{
         borderRadius: 3,
         border: '1px solid rgba(124,58,237,0.15)',
@@ -81,9 +81,7 @@ export default function BookCard({ book, onEdit }: { book: Book; onEdit?: (b: Bo
         )}
 
         {book.status === 'in_progress' && book.totalPages && (
-          <Box sx={{ mt: 'auto' }}>
-            <ProgressBar value={progress} label={`${book.currentPage} / ${book.totalPages} pages`} height={5} showPercent />
-          </Box>
+          <ProgressBar value={progress} label={`${book.currentPage} / ${book.totalPages} pages`} height={5} showPercent />
         )}
 
         {book.status === 'completed' && (
@@ -93,7 +91,7 @@ export default function BookCard({ book, onEdit }: { book: Book; onEdit?: (b: Bo
         )}
       </Box>
 
-      {/* Action */}
+      {/* Log session button */}
       {book.status === 'in_progress' && (
         <Box sx={{ px: 2, pb: 2 }}>
           <Box
@@ -118,7 +116,11 @@ export default function BookCard({ book, onEdit }: { book: Book; onEdit?: (b: Bo
           <EditIcon sx={{ fontSize: 16, mr: 1 }} /> Edit
         </MenuItem>
         <MenuItem
-          onClick={(e) => { e.stopPropagation(); if (confirm(`Delete "${book.title}"?`)) deleteBook(book.id); setAnchorEl(null); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (confirm(`Delete "${book.title}"?`)) deleteBook(book.id);
+            setAnchorEl(null);
+          }}
           sx={{ color: 'error.main' }}
         >
           <DeleteIcon sx={{ fontSize: 16, mr: 1 }} /> Delete

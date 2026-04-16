@@ -36,7 +36,7 @@ export default function BookDetailPage() {
 
   if (!book) return (
     <Box><TopBar title="Not Found" />
-      <EmptyState icon="🔍" title="Book not found" description="This book doesn't exist or was deleted." actionLabel="Back to Library" onAction={() => router.push('/books')} />
+      <EmptyState icon="🔍" title="Book not found" description="This book doesn't exist or was deleted." actionLabel="Back to Library" onAction={() => router.push('/dashboard/books')} />
     </Box>
   );
 
@@ -48,19 +48,20 @@ export default function BookDetailPage() {
   return (
     <Box>
       <TopBar title="Book Detail" />
-      <Box sx={{ px: 4, py: 3, maxWidth: 1200 }}>
-        <Button startIcon={<ArrowBackIcon />} onClick={() => router.push('/books')}
+      <Box sx={{ px: { xs: 2, sm: 3, md: 4 }, py: 3, maxWidth: 1200 }}>
+        <Button startIcon={<ArrowBackIcon />} onClick={() => router.push('/dashboard/books')}
           sx={{ mb: 3, color: 'text.secondary', '&:hover': { color: 'text.primary' } }}>
           Back to Library
         </Button>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '320px 1fr' }, gap: 3 }}>
           {/* Left panel */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box>
             {/* Cover */}
             <Box sx={{
               borderRadius: 3, overflow: 'hidden',
               border: '1px solid rgba(124,58,237,0.15)',
+              bgcolor: 'rgba(124,58,237,0.02)'
             }}>
               <Box sx={{
                 height: 200,
@@ -69,7 +70,7 @@ export default function BookDetailPage() {
               }}>
                 <Typography sx={{ fontSize: 80, filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))' }}>📖</Typography>
               </Box>
-              <Box sx={{ p: 3, bgcolor: 'rgba(124,58,237,0.03)' }}>
+              <Box sx={{ p: 2.5 }}>
                 <Box sx={{ mb: 1.5 }}>
                   <BookStatusBadge status={book.status} />
                 </Box>
@@ -80,7 +81,7 @@ export default function BookDetailPage() {
 
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
                   {book.genre && <Chip label={book.genre} size="small" sx={{ bgcolor: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: 'none' }} />}
-                  {book.difficulty && <Chip label={book.difficulty} size="small" variant="outlined" sx={{ borderColor: 'rgba(124,58,237,0.3)', color: 'text.secondary' }} />}
+                  {book.difficulty && <Chip label={book.difficulty} size="small" variant="outlined" sx={{ borderColor: 'rgba(124,58,237,0.3)', color: 'text.secondary',textTransform: 'capitalize' }} />}
                 </Box>
 
                 {book.totalPages && (
@@ -129,11 +130,15 @@ export default function BookDetailPage() {
           <Box>
             <Typography variant="h6" component="div" sx={{ fontWeight: 700, mb: 2 }}>📝 Reading Sessions</Typography>
             {logsLoading
-              ? <CircularProgress sx={{ color: '#7c3aed' }} />
+              ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                <CircularProgress sx={{ color: '#7c3aed' }} />
+              </Box>
+            )
               : !logs?.length
-              ? <Box sx={{ borderRadius: 3, border: '1px solid rgba(124,58,237,0.15)', bgcolor: 'rgba(124,58,237,0.02)' }}>
+              ? (<Box sx={{ borderRadius: 3, border: '1px solid rgba(124,58,237,0.15)', bgcolor: 'rgba(124,58,237,0.02)' }}>
                   <EmptyState icon="📖" title="No sessions yet" description="Start tracking your reading!" actionLabel="Log first session" onAction={() => setIsLogging(true)} />
-                </Box>
+                </Box>)
               : <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                   {logs.map((log) => {
                     const mood = MOODS.find((m) => m.value === log.mood);
