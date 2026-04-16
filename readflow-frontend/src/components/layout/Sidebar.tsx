@@ -1,5 +1,13 @@
 "use client";
-import { Box, Typography, Avatar, Chip } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Avatar,
+  Chip,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import HistoryIcon from "@mui/icons-material/History";
@@ -10,7 +18,11 @@ import { logout } from "@/store/slices/authSlice";
 import { getLevelInfo } from "@/utils/formatters";
 
 const NAV = [
-  { label: "Dashboard", href: "/dashboard", icon: <DashboardIcon fontSize="small" /> },
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: <DashboardIcon fontSize="small" />,
+  },
   {
     label: "My Books",
     href: "/dashboard/books",
@@ -23,17 +35,25 @@ const NAV = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({
+  open,
+  onToggle,
+}: {
+  open: boolean;
+  onToggle: () => void;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const user = useAppSelector((s) => s.auth.user);
   const levelInfo = getLevelInfo(user?.xp || 0);
+  const showTooltip = !open;
 
   return (
     <Box
       sx={{
-        width: 240,
+        width: open ? 240 : 72,
+        transition: "all 0.3s ease",
         height: "100vh",
         position: "fixed",
         left: 0,
@@ -41,182 +61,145 @@ export default function Sidebar() {
         display: "flex",
         flexDirection: "column",
         bgcolor: "background.paper",
-        backdropFilter: "blur(20px)",
         borderRight: "1px solid rgba(124,58,237,0.15)",
         zIndex: 100,
       }}
     >
-      {/* Logo */}
-      <Box sx={{ px: 3, py: 3 }}>
-        <Typography
-          sx={{
-            fontWeight: 900,
-            fontSize: 20,
-            background:
-              "linear-gradient(135deg, #a78bfa 0%, #7c3aed 50%, #f59e0b 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            letterSpacing: "-0.5px",
-          }}
-        >
-          📚 ReadFlow+
-        </Typography>
-        <Typography
-          variant="caption"
-          sx={{ color: "#6b6486", mt: 0.25, display: "block" }}
-        >
-          Gamified reading tracker
-        </Typography>
+      {/* Top */}
+      <Box sx={{ px: 2, py: 2, display: "flex", alignItems: "center", gap: 1 }}>
+        <IconButton onClick={onToggle}>
+          <MenuIcon />
+        </IconButton>
+
+        {open && (
+          <Typography
+            sx={{
+              fontWeight: 900,
+              fontSize: 18,
+              background: "linear-gradient(135deg, #a78bfa, #7c3aed, #f59e0b)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            ReadFlow+
+          </Typography>
+        )}
       </Box>
 
-      {/* Divider */}
-      <Box sx={{ height: 1, bgcolor: "background.paper", mx: 2 }} />
-
       {/* Nav */}
-      <Box
-        sx={{
-          flex: 1,
-          px: 1.5,
-          py: 2,
-          display: "flex",
-          flexDirection: "column",
-          gap: 0.5,
-        }}
-      >
+      <Box sx={{ flex: 1, px: 1 }}>
         {NAV.map((item) => {
           const active =
             item.href === "/dashboard"
               ? pathname === "/dashboard"
               : pathname.startsWith(item.href);
-          return (
+
+          const content = (
             <Box
               key={item.href}
               onClick={() => router.push(item.href)}
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 1.5,
-                px: 2,
-                py: 1.25,
+                gap: open ? 1.5 : 0,
+                justifyContent: open ? "flex-start" : "center",
+                px: open ? 2 : 0,
+                py: 1.2,
                 borderRadius: 2,
                 cursor: "pointer",
-                transition: "all 0.15s ease",
-                background: active
-                  ? "linear-gradient(135deg, rgba(124,58,237,0.25), rgba(124,58,237,0.12))"
-                  : "transparent",
-                border: active
-                  ? "1px solid rgba(124,58,237,0.3)"
-                  : "1px solid transparent",
-                color: active ? "#a78bfa" : "#9990b8",
-                "&:hover": {
-                  background: active
-                    ? "linear-gradient(135deg, rgba(124,58,237,0.3), rgba(124,58,237,0.15))"
-                    : "rgba(124,58,237,0.06)",
-                  color: active ? "#a78bfa" : "#c4bfe0",
-                },
+                background: active ? "rgba(124,58,237,0.15)" : "transparent",
+                color: active ? "primary.main" : "text.secondary",
+                "&:hover": { bgcolor: "rgba(124,58,237,0.08)" },
               }}
             >
-              <Box
-                sx={{ color: "inherit", display: "flex", alignItems: "center" }}
-              >
-                {item.icon}
-              </Box>
-              <Typography
-                sx={{
-                  fontSize: 14,
-                  fontWeight: active ? 600 : 400,
-                  color: "inherit",
-                }}
-              >
-                {item.label}
-              </Typography>
-              {active && (
-                <Box
-                  sx={{
-                    ml: "auto",
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    bgcolor: "#7c3aed",
-                  }}
-                />
+              {item.icon}
+              {open && (
+                <Typography sx={{ fontSize: 14 }}>{item.label}</Typography>
               )}
             </Box>
+          );
+
+          return showTooltip ? (
+            <Tooltip key={item.href} title={item.label} placement="right">
+              {content}
+            </Tooltip>
+          ) : (
+            content
           );
         })}
       </Box>
 
-      {/* Divider */}
-      <Box sx={{ height: 1, bgcolor: "background.paper", mx: 2 }} />
-
       {/* User */}
-      <Box sx={{ p: 2 }}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            p: 1.5,
-            borderRadius: 2,
-            bgcolor: "rgba(124,58,237,0.08)",
-            border: "1px solid rgba(124,58,237,0.12)",
-            mb: 1.5,
-          }}
-        >
-          <Avatar
+      <Box sx={{ p: 1 }}>
+        {/* Avatar */}
+        {showTooltip ? (
+          <Tooltip title={user?.email || ""} placement="right">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                p: 1,
+              }}
+            >
+              <Avatar sx={{ width: 32, height: 32 }}>
+                {user?.email?.[0]?.toUpperCase()}
+              </Avatar>
+            </Box>
+          </Tooltip>
+        ) : (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, p: 1 }}>
+            <Avatar sx={{ width: 32, height: 32 }}>
+              {user?.email?.[0]?.toUpperCase()}
+            </Avatar>
+            <Box>
+              <Typography sx={{ fontSize: 12 }}>{user?.email}</Typography>
+              <Chip
+                label={`Lv.${user?.level} ${levelInfo.name}`}
+                size="small"
+              />
+            </Box>
+          </Box>
+        )}
+
+        {/* Logout */}
+        {showTooltip ? (
+          <Tooltip title="Logout" placement="right">
+            <Box
+              onClick={() => {
+                dispatch(logout());
+                router.push("/login");
+              }}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                py: 1,
+                cursor: "pointer",
+                color: "error.main",
+              }}
+            >
+              <LogoutIcon fontSize="small" />
+            </Box>
+          </Tooltip>
+        ) : (
+          <Box
+            onClick={() => {
+              dispatch(logout());
+              router.push("/login");
+            }}
             sx={{
-              width: 34,
-              height: 34,
-              fontSize: 14,
-              fontWeight: 700,
-              background: "linear-gradient(135deg, #7c3aed, #a78bfa)",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              px: 2,
+              py: 1,
+              cursor: "pointer",
+              color: "error.main",
             }}
           >
-            {user?.email?.[0]?.toUpperCase()}
-          </Avatar>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography
-              sx={{ fontSize: 12, fontWeight: 600, color: "text.secondary", mb: 0.25 }}
-              noWrap
-            >
-              {user?.email}
-            </Typography>
-            <Chip
-              label={`Lv.${user?.level} ${levelInfo.name}`}
-              size="small"
-              sx={{
-                fontSize: "0.6rem",
-                height: 18,
-                background:
-                  "linear-gradient(135deg, rgba(124,58,237,0.4), rgba(124,58,237,0.2))",
-                color: "#a78bfa",
-                border: "none",
-              }}
-            />
+            <LogoutIcon fontSize="small" />
+            <Typography>Logout</Typography>
           </Box>
-        </Box>
-
-        <Box
-          onClick={() => {
-            dispatch(logout());
-            router.push("/login");
-          }}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            px: 2,
-            py: 1,
-            borderRadius: 2,
-            cursor: "pointer",
-            color: "#ef4444",
-            "&:hover": { bgcolor: "rgba(239,68,68,0.08)" },
-            transition: "all 0.15s",
-          }}
-        >
-          <LogoutIcon sx={{ fontSize: 16 }} />
-          <Typography sx={{ fontSize: 14 }}>Logout</Typography>
-        </Box>
+        )}
       </Box>
     </Box>
   );
