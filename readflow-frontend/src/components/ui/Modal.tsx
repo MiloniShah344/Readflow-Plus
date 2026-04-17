@@ -14,7 +14,7 @@ interface ModalProps {
 export default function Modal({ open, onClose, title, children, maxWidth = 'sm' }: ModalProps) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth={maxWidth} fullWidth
-      slotProps={{ paper: {sx: { background: 'rgba(12,11,22,0.98)', backdropFilter: 'blur(20px)' }} }}
+      slotProps={{ paper: {sx: { background: 'background.default', backdropFilter: 'blur(20px)' }} }}
     >
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1, pt: 3, px: 3 }}>
         <Typography variant="h6" component="div" sx={{ fontWeight: 700, color: 'text.primary' }}>{title}</Typography>

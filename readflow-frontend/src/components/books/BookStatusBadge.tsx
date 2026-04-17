@@ -2,12 +2,20 @@
 import { Box, Typography } from '@mui/material';
 import { BookStatus } from '@/types/book.types';
 
+// const STATUS: Record<BookStatus, { label: string; icon: string; bg: string; color: string }> = {
+//   to_read:     { label: 'To Read',     icon: '📌', bg: 'rgba(148,163,184,0.15)', color: '#94a3b8' },
+//   in_progress: { label: 'In Progress', icon: '📖', bg: 'rgba(124,58,237,0.2)',   color: '#a78bfa' },
+//   completed:   { label: 'Completed',   icon: '✅', bg: 'rgba(16,185,129,0.15)',  color: '#10b981' },
+//   dropped:     { label: 'Dropped',     icon: '😅', bg: 'rgba(239,68,68,0.15)',   color: '#ef4444' },
+// };
+
 const STATUS: Record<BookStatus, { label: string; icon: string; bg: string; color: string }> = {
-  to_read:     { label: 'To Read',     icon: '📌', bg: 'rgba(148,163,184,0.15)', color: '#94a3b8' },
-  in_progress: { label: 'In Progress', icon: '📖', bg: 'rgba(124,58,237,0.2)',   color: '#a78bfa' },
-  completed:   { label: 'Completed',   icon: '✅', bg: 'rgba(16,185,129,0.15)',  color: '#10b981' },
-  dropped:     { label: 'Dropped',     icon: '😅', bg: 'rgba(239,68,68,0.15)',   color: '#ef4444' },
+  to_read:     { label: 'To Read',     icon: '📌', bg: 'background.primary', color: 'text.primary' },
+  in_progress: { label: 'In Progress', icon: '📖', bg: 'background.primary',   color: 'text.primary' },
+  completed:   { label: 'Completed',   icon: '✅', bg: 'background.primary',  color: 'text.primary' },
+  dropped:     { label: 'Dropped',     icon: '😅', bg: 'background.primary',   color: 'text.primary' },
 };
+
 
 export default function BookStatusBadge({ status, size = 'small' }: { status: BookStatus; size?: 'small' | 'medium' }) {
   const s = STATUS[status];

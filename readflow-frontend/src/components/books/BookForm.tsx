@@ -58,7 +58,7 @@ const GENRE_OPTIONS = [
 const fieldSx = {
   "& .MuiOutlinedInput-root": {
     borderRadius: 2,
-    bgcolor: "rgba(124,58,237,0.05)",
+    bgcolor: "background.default",
   },
   "& .MuiInputBase-input": { color: "text.primary" },
   "& .MuiInputLabel-root": { color: "text.secondary" },
@@ -114,7 +114,11 @@ export default function BookForm({ book, onSuccess, onCancel }: BookFormProps) {
     <Box
       component="form"
       onSubmit={handleSubmit}
-      sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2.5,
+      }}
     >
       {/* Color picker */}
       <Box>

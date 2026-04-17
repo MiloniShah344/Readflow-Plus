@@ -43,7 +43,7 @@ export default function RegisterForm() {
       {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-        <TextField label="Name" type="email" fullWidth value={name}
+        <TextField label="Name" type="text" fullWidth value={name}
           onChange={(e) => setName(e.target.value)} required autoFocus
           sx={{ '& .MuiInputBase-input': { color: '#e8e6f0' }, '& .MuiInputLabel-root': { color: '#9990b8' } }}
         />

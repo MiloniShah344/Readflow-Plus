@@ -87,7 +87,7 @@ export default function Sidebar({
           // size="small"
           sx={{
             color: "#9990b8",
-            "&:hover": { color: "#a78bfa", bgcolor: "rgba(124,58,237,0.1)" },
+            "&:hover": { color: "text.secondary", bgcolor: "rgba(124,58,237,0.1)" },
             flexShrink: 0,
           }}
         >
@@ -146,11 +146,11 @@ export default function Sidebar({
                 border: active
                   ? "1px solid rgba(124,58,237,0.25)"
                   : "1px solid transparent",
-                color: active ? "#a78bfa" : "#9990b8",
+                color: active ? "#8369d3" : "#9990b8",
                 transition: "all 0.15s",
                 "&:hover": {
                   bgcolor: "rgba(124,58,237,0.08)",
-                  color: active ? "#a78bfa" : "#c4bfe0",
+                  color: active ? "#a78bfa" : "text.secondary",
                 },
               }}
             >
