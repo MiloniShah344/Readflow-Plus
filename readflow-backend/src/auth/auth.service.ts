@@ -5,6 +5,7 @@ import {
   Injectable,
   ConflictException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -12,6 +13,7 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { User } from '../users/entities/user.entity';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -74,6 +76,26 @@ export class AuthService {
     const user = await this.usersService.findById(userId);
     if (!user) throw new UnauthorizedException();
     return this.sanitizeUser(user);
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    // Use findByIdWithPassword to get the hashed password
+    const user = await this.usersService.findByIdWithPassword(userId);
+    if (!user) throw new UnauthorizedException('User not found');
+
+    const valid = await bcrypt.compare(dto.oldPassword, user.password);
+    if (!valid) throw new BadRequestException('Current password is incorrect');
+
+    if (dto.oldPassword === dto.newPassword) {
+      throw new BadRequestException(
+        'New password must be different from your current password',
+      );
+    }
+
+    const hashed = await bcrypt.hash(dto.newPassword, 12);
+    await this.usersService.update(userId, { password: hashed });
+
+    return { message: 'Password changed successfully' };
   }
 
   private generateToken(user: User): string {

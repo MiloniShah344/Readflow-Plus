@@ -38,9 +38,10 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
     },
     updateUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
+      // Merge into existing user so we don't lose token-derived fields
+      state.user = { ...state.user, ...action.payload } as User;
       if (typeof window !== 'undefined') {
-        localStorage.setItem('rf_user', JSON.stringify(action.payload));
+        localStorage.setItem('rf_user', JSON.stringify(state.user));
       }
     },
     logout: (state) => {
@@ -55,6 +56,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, initializeAuth, updateUser, logout } =
-  authSlice.actions;
+export const { setCredentials, initializeAuth, updateUser, logout } = authSlice.actions;
 export default authSlice.reducer;

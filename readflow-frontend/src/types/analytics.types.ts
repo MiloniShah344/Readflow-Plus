@@ -14,3 +14,9 @@ export interface AnalyticsSummary {
   moodDistribution: Record<string, number>;
   heatmapData: HeatmapDay[];
 }
+
+export interface Insight {
+  type: string;
+  message: string;
+  icon: string;
+}

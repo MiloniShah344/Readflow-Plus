@@ -381,7 +381,7 @@ export default function BookCard({
                 sx={{
                   fontSize: 13,
                   fontWeight: isCurrent ? 700 : 400,
-                  color: isCurrent ? opt.color : "#c4bfe0",
+                  color: isCurrent ? opt.color : "text.secondary",
                   flex: 1,
                 }}
               >

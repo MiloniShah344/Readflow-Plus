@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,6 +18,14 @@ export class UsersService {
   }
 
   async findById(id: string): Promise<User | null> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) return null;
+    const { password, ...rest } = user as any;
+    return rest;
+  }
+
+  // Returns user WITH password (for auth only)
+  async findByIdWithPassword(id: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { id } });
   }
 

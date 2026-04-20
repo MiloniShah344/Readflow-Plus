@@ -13,3 +13,13 @@ export function useAnalytics() {
     staleTime: 1000 * 60 * 2,
   });
 }
+
+export function useInsights() {
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  return useQuery({
+    queryKey: [ANALYTICS_KEY, 'insights'],
+    queryFn: () => analyticsService.getInsights(),
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 5,
+  });
+}

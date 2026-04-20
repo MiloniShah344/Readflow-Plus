@@ -11,4 +11,9 @@ export class AnalyticsController {
   getSummary(@CurrentUser() user: User) {
     return this.analyticsService.getSummary(user.id);
   }
+
+  @Get('insights')
+  getInsights(@CurrentUser() user: User) {
+    return this.analyticsService.getInsights(user.id);
+  }
 }

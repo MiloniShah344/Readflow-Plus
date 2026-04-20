@@ -17,6 +17,10 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import { getLevelInfo } from "@/utils/formatters";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import TrackChangesIcon from '@mui/icons-material/TrackChanges';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const NAV = [
   {
@@ -38,6 +42,26 @@ const NAV = [
     label: "Achievements",
     href: "/dashboard/achievements",
     icon: <EmojiEventsIcon fontSize="small" />,
+  },
+  {
+    label: "Analytics",
+    href: "/dashboard/analytics",
+    icon: <BarChartIcon fontSize="small" />,
+  },
+  {
+    label: "Goals",
+    href: "/dashboard/goals",
+    icon: <TrackChangesIcon fontSize="small" />,
+  },
+  {
+    label: "Calendar",
+    href: "/dashboard/calendar",
+    icon: <CalendarMonthIcon fontSize="small" />,
+  },
+  {
+    label: "Settings",
+    href: "/dashboard/settings",
+    icon: <SettingsIcon fontSize="small" />,
   },
 ];
 
@@ -220,7 +244,7 @@ export default function Sidebar({
       <Box sx={{ p: 1.5 }}>
         {/* Avatar row */}
         {!open ? (
-          <Tooltip title={user?.email || ""} placement="right">
+          <Tooltip title={user?.name || user?.email || ""} placement="right">
             <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
               <Avatar
                 sx={{
@@ -231,7 +255,7 @@ export default function Sidebar({
                   background: "linear-gradient(135deg, #7c3aed, #a78bfa)",
                 }}
               >
-                {user?.email?.[0]?.toUpperCase()}
+                {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
               </Avatar>
             </Box>
           </Tooltip>
@@ -258,14 +282,14 @@ export default function Sidebar({
                 background: "linear-gradient(135deg, #7c3aed, #a78bfa)",
               }}
             >
-              {user?.email?.[0]?.toUpperCase()}
+              {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography
                 sx={{ fontSize: 11, fontWeight: 600, color: "text.secondary" }}
                 noWrap
               >
-                {user?.email}
+                {user?.name || user?.email}
               </Typography>
               <Chip
                 label={`Lv.${user?.level} ${levelInfo.name}`}

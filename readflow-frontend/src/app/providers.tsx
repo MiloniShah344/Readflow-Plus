@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 import { store } from '@/store';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { initializeAuth } from '@/store/slices/authSlice';
+import { setTheme } from '@/store/slices/themeSlice';
 
 function ThemeWrapper({ children }: { children: ReactNode }) {
   const themeMode = useAppSelector((s) => s.theme.mode);
@@ -16,9 +17,21 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
     const token = localStorage.getItem('rf_token');
     const userStr = localStorage.getItem('rf_user');
     if (token && userStr) {
-      try { dispatch(initializeAuth({ token, user: JSON.parse(userStr) })); } catch {}
+      try {
+        const user = JSON.parse(userStr);
+        dispatch(initializeAuth({ token, user }));
+        // Sync theme from stored user preference
+        if (user.theme === 'light' || user.theme === 'dark') {
+          dispatch(setTheme(user.theme));
+        }
+      } catch {}
     }
   }, [dispatch]);
+
+  // Apply dark class to <html> for Tailwind dark mode
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', themeMode === 'dark');
+  }, [themeMode]);
 
   const theme = createTheme({
     palette: {
@@ -29,7 +42,7 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
       success: { main: '#10b981' },
       background: {
         default: themeMode === 'dark' ? '#07070d' : '#f1f0f7',
-        paper:   themeMode === 'dark' ? '#1f1d2e' : '#ffffff',
+        paper:   themeMode === 'dark' ? '#0f0e17' : '#ffffff',
       },
       text: {
         primary:   themeMode === 'dark' ? '#e8e6f0' : '#1a1625',
@@ -37,15 +50,7 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
       },
       divider: themeMode === 'dark' ? 'rgba(124,58,237,0.15)' : 'rgba(124,58,237,0.12)',
     },
-    typography: {
-      fontFamily: '"Inter", "Segoe UI", system-ui, sans-serif',
-      h1: { fontWeight: 800 },
-      h2: { fontWeight: 700 },
-      h3: { fontWeight: 700 },
-      h4: { fontWeight: 700 },
-      h5: { fontWeight: 600 },
-      h6: { fontWeight: 600 },
-    },
+    typography: { fontFamily: '"Inter", "Segoe UI", system-ui, sans-serif' },
     shape: { borderRadius: 12 },
     components: {
       MuiButton: {
@@ -64,8 +69,8 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
           root: {
             '& .MuiOutlinedInput-root': {
               borderRadius: 10,
-              '& fieldset': { borderColor: themeMode === 'dark' ? 'rgba(124,58,237,0.25)' : 'rgba(124,58,237,0.2)' },
-              '&:hover fieldset': { borderColor: 'rgba(124,58,237,0.5)' },
+              '& fieldset': { borderColor: 'rgba(124,58,237,0.2)' },
+              '&:hover fieldset': { borderColor: 'rgba(124,58,237,0.45)' },
               '&.Mui-focused fieldset': { borderColor: '#7c3aed' },
             },
           },
@@ -80,15 +85,23 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
           },
         },
       },
-      MuiChip: {
-        styleOverrides: { root: { fontWeight: 600 } },
-      },
       MuiDialog: {
         styleOverrides: {
           paper: {
             borderRadius: 20,
             border: themeMode === 'dark' ? '1px solid rgba(124,58,237,0.2)' : '1px solid rgba(124,58,237,0.1)',
             background: themeMode === 'dark' ? '#0f0e17' : '#ffffff',
+          },
+        },
+      },
+      MuiChip: { styleOverrides: { root: { fontWeight: 600 } } },
+      MuiPopover: {
+        styleOverrides: {
+          paper: {
+            borderRadius: 12,
+            background: themeMode === 'dark' ? 'rgba(12,11,22,0.98)' : '#fff',
+            border: themeMode === 'dark' ? '1px solid rgba(124,58,237,0.2)' : '1px solid rgba(124,58,237,0.12)',
+            backdropFilter: 'blur(20px)',
           },
         },
       },
